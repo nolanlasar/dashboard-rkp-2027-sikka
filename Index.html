@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dashboard RKP Desa 2027 - Kabupaten Sikka</title>
+<style>
+:root{--navy:#12243a;--blue:#235b8e;--teal:#168b83;--gold:#e5a93d;--red:#c65353;--ink:#243447;--muted:#718096;--line:#e5ebf1;--bg:#f3f6fa;--white:#fff}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);font-family:Inter,Segoe UI,Arial,sans-serif;color:var(--ink)}
+header{background:linear-gradient(120deg,#10243b,#1d527c);color:#fff;padding:30px clamp(18px,4vw,58px) 34px}
+.eyebrow{font-size:11px;letter-spacing:2px;text-transform:uppercase;color:#a9c9e2;font-weight:700}
+h1{margin:9px 0 7px;font-size:clamp(25px,4vw,38px);letter-spacing:-.7px}.sub{color:#d0dfeb;font-size:14px}
+main{max-width:1400px;margin:auto;padding:24px clamp(14px,3vw,38px) 45px}
+.panel{background:#fff;border:1px solid var(--line);border-radius:15px;box-shadow:0 5px 18px #19324b0a}
+.filters{display:grid;grid-template-columns:1.2fr 1.2fr 1fr auto auto;gap:14px;padding:17px 19px;margin-top:-2px;align-items:end}
+label{display:block;font-size:11px;font-weight:800;color:#62748a;text-transform:uppercase;letter-spacing:.7px;margin:0 0 7px}
+select,input{width:100%;border:1px solid #d8e1ea;border-radius:9px;padding:11px 12px;font-size:14px;background:#fff;color:#23364a;outline:none}
+select:focus,input:focus{border-color:#4386b8;box-shadow:0 0 0 3px #4386b81a}
+button{border:0;border-radius:9px;padding:11px 16px;background:#eaf1f7;color:#244a6b;font-weight:700;cursor:pointer;transition:all 0.2s}
+button:hover{background:#dce9f4}
+button.btn-refresh{background:#168b83;color:#fff}
+button.btn-refresh:hover{background:#116e68}
+.section-head{display:flex;justify-content:space-between;align-items:center;margin:25px 2px 13px;gap:12px}.section-head h2{font-size:17px;margin:0;color:#1b3047}.hint{font-size:12px;color:var(--muted)}
+.kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:13px}.kpi{padding:17px 18px;position:relative;overflow:hidden}.kpi:after{content:"";position:absolute;width:65px;height:65px;border-radius:50%;right:-17px;top:-22px;background:#eaf2f8}
+.kpi .label{font-size:11px;color:#718096;text-transform:uppercase;letter-spacing:.7px;font-weight:800}.kpi strong{display:block;font-size:30px;margin:8px 0 2px;color:#19334d}.kpi small{color:#8492a3;font-size:12px}
+.kpi.good strong{color:var(--teal)}.kpi.bad strong{color:var(--red)}.kpi.rate strong{color:var(--blue)}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}.chart-panel{padding:18px 20px}.chart-panel h3{margin:0 0 5px;font-size:14px}.chart-sub{font-size:12px;color:var(--muted);margin-bottom:17px}
+.bar-row{display:grid;grid-template-columns:minmax(100px,145px) 1fr 35px;gap:10px;align-items:center;margin:12px 0;font-size:12px}.bar-track{height:12px;border-radius:20px;background:#edf1f5;overflow:hidden;display:flex}.seg{height:100%}.bar-value{text-align:right;font-weight:800;color:#526579}
+.legend{display:flex;gap:13px;flex-wrap:wrap;margin-top:15px;font-size:11px;color:#65768a}.dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:5px}
+.table-panel{overflow:hidden}.table-top{padding:17px 19px;display:flex;justify-content:space-between;align-items:center;gap:12px;border-bottom:1px solid var(--line)}.table-top h3{margin:0;font-size:15px}.table-wrap{overflow:auto}table{border-collapse:collapse;width:100%;min-width:760px}th,td{padding:12px 15px;text-align:left;border-bottom:1px solid #edf1f5;font-size:12px}th{background:#f8fafc;color:#65768a;text-transform:uppercase;font-size:10px;letter-spacing:.6px;position:sticky;top:0}tbody tr:hover{background:#f8fbfd}.pill{display:inline-block;padding:5px 8px;border-radius:20px;font-size:10px;font-weight:800;white-space:nowrap}.pill.good{background:#e5f5f1;color:#13776e}.pill.bad{background:#fff0ef;color:#b34747}.pill.other{background:#fff5df;color:#93671a}
+.empty{text-align:center;padding:30px;color:#8190a1}.foot{font-size:11px;color:#8795a5;text-align:center;margin-top:20px}
+.loading-overlay{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(255,255,255,0.8);display:flex;justify-content:center;align-items:center;z-index:9999;font-weight:bold;color:var(--navy)}
+@media(max-width:850px){.filters{grid-template-columns:1fr 1fr}.kpis{grid-template-columns:1fr 1fr}.grid{grid-template-columns:1fr}}
+@media(max-width:480px){.filters{grid-template-columns:1fr}.kpis{gap:8px}.kpi{padding:13px}.kpi strong{font-size:25px}.section-head{align-items:flex-start;flex-direction:column}}
+@media print{body{background:#fff}.filters,button{display:none}.panel{box-shadow:none;break-inside:avoid}header{print-color-adjust:exact;-webkit-print-color-adjust:exact}}
+</style>
+</head>
+<body>
+
+<div id="loader" class="loading-overlay">Memuat data terbaru dari Google Sheets...</div>
+
+<header>
+  <div class="eyebrow">Pemerintah Kabupaten Sikka · Dinas PMD</div>
+  <h1>Monitoring Penetapan RKP Desa 2027</h1>
+  <div class="sub">Rekapitulasi status penetapan berdasarkan kecamatan dan desa (Real-time Google Sheets)</div>
+</header>
+
+<main>
+<section class="panel filters">
+  <div><label for="kec">Pilih Kecamatan</label><select id="kec"><option value="">Semua Kecamatan</option></select></div>
+  <div><label for="desa">Pilih Desa</label><select id="desa"><option value="">Semua Desa</option></select></div>
+  <div><label for="status">Filter Status</label><select id="status"><option value="">Semua Status</option></select></div>
+  <div><button id="reset">↺ Reset Filter</button></div>
+  <div><button id="reload" class="btn-refresh">🔄 Sync Data</button></div>
+</section>
+
+<div class="section-head"><h2>Ringkasan Data</h2><span class="hint" id="scope">Seluruh wilayah</span></div>
+<section class="kpis">
+  <div class="panel kpi"><div class="label">Total Desa</div><strong id="total">0</strong><small>Desa dalam cakupan filter</small></div>
+  <div class="panel kpi good"><div class="label">Tepat Waktu</div><strong id="tepat">0</strong><small id="tepatPct">0% dari total desa</small></div>
+  <div class="panel kpi bad"><div class="label">Tidak Tepat Waktu</div><strong id="terlambat">0</strong><small id="terlambatPct">0% dari total desa</small></div>
+  <div class="panel kpi rate"><div class="label">Status Lainnya</div><strong id="lain">0</strong><small>Perlu tindak lanjut / konfirmasi</small></div>
+</section>
+
+<div class="section-head"><h2>Visualisasi Status</h2><span class="hint">Berubah otomatis mengikuti filter</span></div>
+<section class="grid">
+  <div class="panel chart-panel"><h3>Komposisi Status Penetapan</h3><div class="chart-sub">Jumlah desa menurut status RKP Desa</div><div id="statusChart"></div><div class="legend" id="legend"></div></div>
+  <div class="panel chart-panel"><h3>Rekap per Kecamatan</h3><div class="chart-sub">Jumlah desa dan proporsi tepat waktu</div><div id="kecChart"></div></div>
+</section>
+
+<div class="section-head"><h2>Rincian Desa</h2><span class="hint" id="countLabel">0 data ditampilkan</span></div>
+<section class="panel table-panel">
+  <div class="table-top"><h3>Daftar Penetapan RKP Desa 2027</h3><input id="cari" style="max-width:260px" placeholder="Cari nama desa..." aria-label="Cari nama desa"></div>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>No.</th><th>Kecamatan</th><th>Desa</th><th>Tanggal Penetapan</th><th>Status Penetapan</th></tr></thead>
+      <tbody id="tbody"></tbody>
+    </table>
+  </div>
+</section>
+
+<div class="foot">Sumber: Data Live Google Sheets Dinas PMD Kab. Sikka · Dashboard Interaktif</div>
+</main>
+
+<script>
+// PASTE URL GOOGLE APPS SCRIPT ANDA DI SINI
+const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxSf3FVyGyWi8uK-_si65LxUPtlgUjM7Fo1-WzmJuWsGblHJxrY4lHqUWO711LgQ4Dx/exec";
+
+let DATA = [];
+const $ = id => document.getElementById(id);
+const colors = {"Tepat Waktu":"#168b83", "Tidak Tepat Waktu":"#c65353"};
+
+const unique = (a) => [...new Set(a)].filter(Boolean).sort((a,b)=>String(a).localeCompare(String(b),'id'));
+function fill(sel, vals, first) { sel.innerHTML = `<option value="">${first}</option>` + vals.map(v => `<option>${esc(v)}</option>`).join(''); }
+function esc(s) { return String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+
+async function fetchData() {
+  $('loader').style.display = 'flex';
+  try {
+    const res = await fetch(GOOGLE_SCRIPT_URL);
+    const json = await res.parse ? await res.json() : await res.json();
+    DATA = json;
+    initDropdowns();
+    render();
+  } catch (err) {
+    alert("Gagal mengambil data dari Google Sheets. Pastikan URL Apps Script sudah benar.");
+    console.error(err);
+  } finally {
+    $('loader').style.display = 'none';
+  }
+}
+
+function initDropdowns() {
+  fill($('kec'), unique(DATA.map(x => x.kecamatan)), 'Semua Kecamatan');
+  fill($('status'), unique(DATA.map(x => x.status)), 'Semua Status');
+  updateDesa();
+}
+
+function filtered() {
+  const k = $('kec').value, d = $('desa').value, s = $('status').value, q = $('cari').value.toLowerCase().trim();
+  return DATA.filter(x => 
+    (!k || String(x.kecamatan) === k) && 
+    (!d || String(x.desa) === d) && 
+    (!s || String(x.status) === s) && 
+    (!q || String(x.desa).toLowerCase().includes(q) || String(x.kecamatan).toLowerCase().includes(q))
+  );
+}
+
+function updateDesa() {
+  const old = $('desa').value, k = $('kec').value;
+  fill($('desa'), unique(DATA.filter(x => !k || String(x.kecamatan) === k).map(x => x.desa)), 'Semua Desa');
+  if ([...$('desa').options].some(o => o.value === old)) $('desa').value = old;
+}
+
+function render() {
+  const rows = filtered(), n = rows.length, counts = {};
+  rows.forEach(x => counts[x.status] = (counts[x.status] || 0) + 1);
+  
+  const tepat = counts['Tepat Waktu'] || 0, telat = counts['Tidak Tepat Waktu'] || 0, lain = n - tepat - telat;
+  $('total').textContent = n;
+  $('tepat').textContent = tepat;
+  $('terlambat').textContent = telat;
+  $('lain').textContent = lain;
+  
+  $('tepatPct').textContent = (n ? (tepat / n * 100).toFixed(1) : '0.0') + '% dari total desa';
+  $('terlambatPct').textContent = (n ? (telat / n * 100).toFixed(1) : '0.0') + '% dari total desa';
+  
+  $('scope').textContent = $('desa').value ? `Desa ${$('desa').value} · ${$('kec').value}` : ($('kec').value || 'Seluruh wilayah');
+  $('countLabel').textContent = `${n} data ditampilkan`;
+
+  const statusNames = Object.keys(counts).sort((a,b) => String(a).localeCompare(String(b), 'id'));
+  $('statusChart').innerHTML = statusNames.length ? statusNames.map(s => `
+    <div class="bar-row">
+      <span>${esc(s)}</span>
+      <div class="bar-track"><div class="seg" style="width:${n ? counts[s]/n*100 : 0}%;background:${colors[s] || '#e5a93d'}"></div></div>
+      <span class="bar-value">${counts[s]}</span>
+    </div>`).join('') : '<div class="empty">Tidak ada data</div>';
+    
+  $('legend').innerHTML = statusNames.map(s => `<span><i class="dot" style="background:${colors[s] || '#e5a93d'}"></i>${esc(s)}</span>`).join('');
+
+  let groups = {};
+  rows.forEach(x => (groups[x.kecamatan] ??= []).push(x));
+  const ks = Object.keys(groups).sort((a,b) => String(a).localeCompare(String(b), 'id'));
+  
+  $('kecChart').innerHTML = ks.length ? ks.map(k => {
+    let a = groups[k], good = a.filter(x => x.status === 'Tepat Waktu').length, late = a.filter(x => x.status === 'Tidak Tepat Waktu').length, other = a.length - good - late;
+    return `
+      <div class="bar-row">
+        <span title="${esc(k)}">${esc(k)}</span>
+        <div class="bar-track">
+          <div class="seg" style="width:${good/a.length*100}%;background:#168b83"></div>
+          <div class="seg" style="width:${late/a.length*100}%;background:#c65353"></div>
+          <div class="seg" style="width:${other/a.length*100}%;background:#e5a93d"></div>
+        </div>
+        <span class="bar-value">${a.length}</span>
+      </div>`;
+  }).join('') : '<div class="empty">Tidak ada data</div>';
+
+  $('tbody').innerHTML = rows.length ? rows.slice().sort((a,b) => String(a.kecamatan).localeCompare(String(b.kecamatan),'id') || String(a.desa).localeCompare(String(b.desa),'id')).map((x, i) => {
+    let tglDisplay = '—';
+    if (x.tanggal) {
+      const d = new Date(x.tanggal);
+      tglDisplay = !isNaN(d) ? d.toLocaleDateString('id-ID', {day: '2-digit', month: 'long', year: 'numeric'}) : x.tanggal;
+    }
+    return `
+      <tr>
+        <td>${i + 1}</td>
+        <td>${esc(x.kecamatan)}</td>
+        <td><b>${esc(x.desa)}</b></td>
+        <td>${tglDisplay}</td>
+        <td><span class="pill ${x.status === 'Tepat Waktu' ? 'good' : x.status === 'Tidak Tepat Waktu' ? 'bad' : 'other'}">${esc(x.status)}</span></td>
+      </tr>`;
+  }).join('') : '<tr><td colspan="5" class="empty">Tidak ada data yang sesuai dengan filter.</td></tr>';
+}
+
+// Event Listeners
+$('kec').addEventListener('change', () => { updateDesa(); render(); });
+['desa', 'status', 'cari'].forEach(id => $(id).addEventListener(id === 'cari' ? 'input' : 'change', render));
+$('reset').addEventListener('click', () => { $('kec').value = ''; $('desa').value = ''; $('status').value = ''; $('cari').value = ''; updateDesa(); render(); });
+$('reload').addEventListener('click', fetchData);
+
+// Auto-refresh setiap 5 menit (300.000 ms)
+setInterval(fetchData, 300000);
+
+// Load data awal
+fetchData();
+</script>
+</body>
+</html>
